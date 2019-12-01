@@ -10,6 +10,7 @@ public class Grafo {
 	private ItemMatriz[][] matrizDist;
 	private int idVert;
 	ItemMatriz[][] matrizCamValidos;
+	private int[][] matrizUnica;
 
 	public Grafo(int cantNodos) {
 		cantNodos++; // sumo 1 porque no se considera la posicion 0,0 de la matriz
@@ -18,6 +19,7 @@ public class Grafo {
 		matrizDist = new ItemMatriz[cantNodos][cantNodos];
 		idVert = 1;
 		matrizCamValidos = new ItemMatriz[matrizDist.length][matrizDist.length];
+		matrizUnica = new int[cantNodos][cantNodos];
 	}
 
 	public boolean insertarVertice(Object elem) {
@@ -87,8 +89,9 @@ public class Grafo {
 					 * Si el arco ha podido ser insertado con exito, inserto en la matriz la
 					 * distancia que hay entre los 2 nodos del arco insertado
 					 */
-					matrizDist[aux1.getID()][aux2.getID()] = new ItemMatriz((int) etiqueta);
-					matrizDist[aux2.getID()][aux1.getID()] = new ItemMatriz((int) etiqueta);
+					// matrizDist[aux1.getID()][aux2.getID()] = new ItemMatriz(0);
+					// matrizDist[aux2.getID()][aux1.getID()] = new ItemMatriz((int) etiqueta);
+					matrizUnica[aux1.getID()][aux1.getID()] = -1;
 				}
 			}
 		}
@@ -106,6 +109,16 @@ public class Grafo {
 				System.out.print(x + " | ");
 			}
 			System.out.println();
+		}
+	}
+
+	public void debugMatUnica() {
+		for (int i = 0; i < matrizDist.length; i++) {
+			for (int j = 0; j < matrizDist.length; j++) {
+				System.out.print(matrizDist[i][j] + " | ");
+			}
+			System.out.println();
+
 		}
 	}
 
@@ -418,13 +431,13 @@ public class Grafo {
 		return cadena;
 	}
 
-	public Camino caminoMenorDistancia(Object elemA, Object elemB, LinkedList<Ciudad> obligatorios) {
+	public Camino caminoMenorDistancia(Object origen, Object destino, LinkedList<Ciudad> obligatorios) {
 		// Se busca el camino más corto en distancia entre el origen y destino
-		NodoVertice vertA, vertB;
+		NodoVertice vertOr, vertDes;
 		boolean existenTodos = true;
 
-		vertA = this.buscarNodoVertice(inicio, elemA);
-		vertB = this.buscarNodoVertice(inicio, elemB);
+		vertOr = this.buscarNodoVertice(inicio, origen);
+		vertDes = this.buscarNodoVertice(inicio, destino);
 		// TODO Modificado
 		for (Ciudad c : obligatorios) {
 			existenTodos &= (this.buscarNodoVertice(inicio, c)) != null;
@@ -438,9 +451,9 @@ public class Grafo {
 		// Se usa un arreglo por tema de referencia, para poder modificarlo según mi
 		// conveniencia.
 		int[] distanciaMinima = { Integer.MAX_VALUE };
-		if (vertA != null && vertB != null && existenTodos) {
+		if (vertOr != null && vertDes != null && existenTodos) {
 			System.out.println("Hace llamada al metodo privado");
-			camino.setListaDeNodos(caminoMenorDistanciaAux(vertA, elemB, lsVisitados, 0, camino.getListaDeNodos(),
+			camino.setListaDeNodos(caminoMenorDistanciaAux(vertOr, destino, lsVisitados, 0, camino.getListaDeNodos(),
 					distanciaMinima, obligatorios));
 			camino.setDistancia(distanciaMinima[0]);
 		}
@@ -483,11 +496,11 @@ public class Grafo {
 
 	public Camino caminoMenorDistanciaDinamico(Object origen, Object destino, LinkedList<Ciudad> obligatorios) {
 		// Se busca el camino más corto en distancia entre el origen y destino
-		NodoVertice vertA, vertB;
+		NodoVertice vertOr, vertDes;
 		boolean existenTodos = true;
 
-		vertA = this.buscarNodoVertice(inicio, origen);
-		vertB = this.buscarNodoVertice(inicio, destino);
+		vertOr = this.buscarNodoVertice(inicio, origen);
+		vertDes = this.buscarNodoVertice(inicio, destino);
 		// TODO Modificado
 		for (Ciudad c : obligatorios) {
 			existenTodos &= (this.buscarNodoVertice(inicio, c)) != null;
@@ -505,19 +518,19 @@ public class Grafo {
 		// Se usa un arreglo por tema de referencia, para poder modificarlo según mi
 		// conveniencia.
 		int[] distanciaMinima = { Integer.MAX_VALUE };
-		if (vertA != null && vertB != null && existenTodos) {
-			if (matrizCamValidos[vertA.getID()][vertB.getID()] != null) {
-				camino.setDistancia(matrizCamValidos[vertA.getID()][vertB.getID()].getDistancia());
+		if (vertOr != null && vertDes != null && existenTodos) {
+			if (matrizCamValidos[vertOr.getID()][vertDes.getID()] != null) {
+				camino.setDistancia(matrizCamValidos[vertOr.getID()][vertDes.getID()].getDistancia());
 				camino.setListaDeNodos(caminoAux);
 			} else {
 				System.out.println("\nHace llamada al metodo privado\n");
-				camino.setListaDeNodos(caminoMenorDistanciaDinamicoAux(vertA, vertA, destino, lsVisitados, 0,
+				camino.setListaDeNodos(caminoMenorDistanciaDinamicoAux(vertOr, vertOr, destino, lsVisitados, 0,
 						camino.getListaDeNodos(), distanciaMinima, obligatorios));
 				camino.setDistancia(distanciaMinima[0]);
 
 			}
 
-//			ItemMatriz itM = matrizCamValidos[vertA.getID()][vertB.getID()];
+//			ItemMatriz itM = matrizCamValidos[vertOr.getID()][vertDes.getID()];
 //			if (itM != null) {
 //				itM.setDistancia(camino.getDistancia());
 //			} else {
@@ -536,15 +549,14 @@ public class Grafo {
 
 			itM = new ItemMatriz(distActual);
 			itM.setVerificado(true);
-			ItemMatriz itemActual=matrizCamValidos[verOrigen.getID()][n.getID()];
-			if(itemActual==null) {
+			ItemMatriz itemActual = matrizCamValidos[verOrigen.getID()][n.getID()];
+			if (itemActual == null) {
 				matrizCamValidos[verOrigen.getID()][n.getID()] = itM;
-			}else {
-				if(distActual<itemActual.getDistancia()) {
+			} else {
+				if (distActual < itemActual.getDistancia()) {
 					matrizCamValidos[verOrigen.getID()][n.getID()] = itM;
 				}
 			}
-			
 
 			lsCamino = lsVisitados.clone();
 			distMin[0] = distActual;
@@ -621,10 +633,10 @@ public class Grafo {
 	/*
 	 * public Camino caminoMenorDistanciaDinamico(Object origen, Object destino,
 	 * LinkedList<Ciudad> obligatorios) { //Se busca el camino más corto en
-	 * distancia entre el origen y destino NodoVertice vertA, vertB; boolean
+	 * distancia entre el origen y destino NodoVertice vertOr, vertDes; boolean
 	 * existenTodos = true;
 	 * 
-	 * vertA = this.buscarNodoVertice(inicio, origen); vertB =
+	 * vertOr = this.buscarNodoVertice(inicio, origen); vertDes =
 	 * this.buscarNodoVertice(inicio, destino); // TODO Modificado for (Ciudad c :
 	 * obligatorios) { existenTodos &= (this.buscarNodoVertice(inicio, c)) != null;
 	 * if (!existenTodos) { break; } } Lista caminito = new Lista();
@@ -632,13 +644,13 @@ public class Grafo {
 	 * 
 	 * // -- Lista lsVisitados = new Lista(); Camino camino = new Camino(); //Se usa
 	 * un arreglo por tema de referencia, para poder modificarlo según mi
-	 * conveniencia. int[] distanciaMinima = {Integer.MAX_VALUE}; if (vertA != null
-	 * && vertB != null && existenTodos) {
+	 * conveniencia. int[] distanciaMinima = {Integer.MAX_VALUE}; if (vertOr != null
+	 * && vertDes != null && existenTodos) {
 	 * 
 	 * /////////////////////////////////////////////////////////////////////////
-	 * ItemMatriz itM=matrizDist[vertA.getID()][vertB.getID()]; if
+	 * ItemMatriz itM=matrizDist[vertOr.getID()][vertDes.getID()]; if
 	 * (itM!=null&&itM.isVerificado()) { camino.setDistancia(itM.getDistancia()); }
-	 * else { camino.setListaDeNodos(caminoMenorDistanciaDinamicoAux(vertA, vertA,
+	 * else { camino.setListaDeNodos(caminoMenorDistanciaDinamicoAux(vertOr, vertOr,
 	 * destino, lsVisitados, 0, camino.getListaDeNodos(), distanciaMinima,
 	 * obligatorios)); camino.setDistancia(distanciaMinima[0]); }
 	 * camino.setListaDeNodos(caminito); } return camino; }
@@ -702,6 +714,211 @@ public class Grafo {
 	 * 
 	 * return lsCamino; }
 	 */
+
+	/////////////////// NUEVO INTENTO XDXD
+
+	public Camino newHope(Object origen, Object destino, LinkedList<Ciudad> obligatorios) {
+		// Se busca el camino más corto en distancia entre el origen y destino
+		NodoVertice vertOr, vertDes;
+		boolean existenTodos = true;
+
+		vertOr = this.buscarNodoVertice(inicio, origen);
+		vertDes = this.buscarNodoVertice(inicio, destino);
+		System.out.println("Ushuaia: " + vertOr.getID());
+		System.out.println("CARTAGEN: " + vertDes.getID());
+		// TODO Modificado
+		for (Ciudad c : obligatorios) {
+			existenTodos &= (this.buscarNodoVertice(inicio, c)) != null;
+			if (!existenTodos) {
+				break;
+			}
+		}
+		// --
+		Lista lsVisitados = new Lista();
+		Camino camino = new Camino();
+		// Se usa un arreglo por tema de referencia, para poder modificarlo según mi
+		// conveniencia.
+
+		int[] distanciaMinima = { Integer.MAX_VALUE };
+		if (vertOr != null && vertDes != null && existenTodos) {
+
+			ItemMatriz valorEnMatriz = matrizDist[vertOr.getID()][vertDes.getID()];
+			// veo si ya hay guardado algun valor para lo q se est� solicitando
+			if (valorEnMatriz != null) {
+				System.out.println("EL VALOR EN MATRIZ NO ES NULL");
+				// pregunto si el valor que esta guardado corresponde a una distancia que haya
+				// pasado por todos los obligatorios
+				if (valorEnMatriz.isVerificado()) {
+					System.out.println("EL VALOR ESTA VERIFICADO");
+					Lista ls = new Lista();
+					ls.insertar(origen, 1);
+					ls.insertar(destino, 2);
+					System.out.println("no voy al aux");
+					camino.setListaDeNodos(ls);
+					camino.setDistancia(valorEnMatriz.getDistancia());
+				} else {
+					System.out.println("Valor no verificado, valor: " + valorEnMatriz.getDistancia());
+					// el valor almacenado es resultado de calculos intermedios y no es una
+					// distancia que haya pasado por todos los obligatorios
+					// por lo tanto hay que calcularlo
+					// LLAMADA A CALCULAR
+					// System.out.println("\n VOY AL METODO AUX YA QUE EL VALOR NO ES VALIDO\n");
+					System.out.println("llamado recursivo por valor no verif");
+					camino.setListaDeNodos(newHopeAux(vertOr, vertOr, destino, lsVisitados, 0, camino.getListaDeNodos(),
+							distanciaMinima, obligatorios));
+					camino.setDistancia(distanciaMinima[0]);
+					System.out.println(camino.getDistancia());
+					ItemMatriz nuevoItem = new ItemMatriz(camino.getDistancia());
+					nuevoItem.setVerificado(true);
+					matrizDist[vertOr.getID()][vertDes.getID()] = nuevoItem;
+					matrizDist[vertDes.getID()][vertOr.getID()] = nuevoItem;
+				}
+
+			} else {
+				System.out.println("EL VALOR EN MATRIZ ES NULL");
+				// no existe ninguna entrada en la matriz, hay que calcularlo
+				// LLAMADA A CALCULAR
+				// System.out.println("\n VOY AL METODO AUX YA QUE NO HAY ENTRADA EN LA
+				// MATRIZ\n");
+				System.out.println("llamado recursivo por valor null");
+				camino.setListaDeNodos(newHopeAux(vertOr, vertOr, destino, lsVisitados, 0, camino.getListaDeNodos(),
+						distanciaMinima, obligatorios));
+				camino.setDistancia(distanciaMinima[0]);
+				System.out.println(camino.getDistancia());
+				ItemMatriz nuevoItem = new ItemMatriz(camino.getDistancia());
+				nuevoItem.setVerificado(true);
+				matrizDist[vertOr.getID()][vertDes.getID()] = nuevoItem;
+				matrizDist[vertDes.getID()][vertOr.getID()] = nuevoItem;
+			}
+
+		}
+
+		return camino;
+	}
+
+	private Lista newHopeAux(NodoVertice n, NodoVertice origen, Object dest, Lista lsVisitados, int distActual,
+			Lista lsCamino, int[] distMin, LinkedList<Ciudad> obligatorios) {
+		ItemMatriz itemActual, nuevoItem;
+		NodoVertice vertDestino = buscarNodoVertice(inicio, dest);
+
+		//
+		lsVisitados.insertar(n.getElem(), lsVisitados.longitud() + 1);
+		if (n.getElem().equals(dest) && lsVisitados.incluye(obligatorios)) {
+
+			lsCamino = lsVisitados.clone();
+			distMin[0] = distActual;
+
+		} else {
+			boolean continuar = true;
+			NodoAdyacente ady = n.getAdyacente();
+			while (ady != null && continuar) {
+				
+				distActual += (int) ady.getEtiqueta();
+				if (distActual < distMin[0]) {
+					if (lsVisitados.localizar(ady.getVerticeAdy().getElem()) < 0) {
+						/*
+						 * Primero verifico si hay una distancia almacenada en la matriz desde el nodo
+						 * en el que estoy parado hacia el destino
+						 */
+
+						//itemActual = matrizDist[n.getID()][vertDestino.getID()];
+						itemActual=matrizDist[ady.getVerticeAdy().getID()][vertDestino.getID()];
+						if (itemActual != null) {
+							if (itemActual.isVerificado()) {
+								/*
+								 * en este momento ya hay un camino que pasa por todos los nodos desde donde
+								 * estoy parado hasta el destino por lo tanto no es necesario que lo recorra, ya
+								 * que se que existe y que en la matriz esta la distancia minima
+								 */
+								System.out.println("NODO ACTUAL : "+n.getID());
+								System.out.println("hay entrada valida entre : " + n.getAdyacente().getVerticeAdy().getID() + " y "
+										+ vertDestino.getID() + " con dist: " + itemActual.getDistancia());
+								System.out.println("dist actual : "+distActual);
+								distActual += itemActual.getDistancia();
+								continuar = false;
+								distMin[0]=distActual;
+								Lista ls = new Lista();
+								ls.insertar(origen.getElem(), 1);
+								ls.insertar(dest, 2);
+								lsCamino = ls;
+							} else {
+								// System.out.println("entrada en matriz no valida");
+								// la entrada en la matriz no es valida, no me sirve la informacion
+								nuevoItem = new ItemMatriz((int) ady.getEtiqueta());
+
+								// guardo la distancia entre donde estoy parado y el nodo que sigue
+								if (matrizDist[n.getID()][ady.getVerticeAdy().getID()] != null) {
+									if (!matrizDist[n.getID()][ady.getVerticeAdy().getID()].isVerificado()) {
+										matrizDist[n.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+										matrizDist[ady.getVerticeAdy().getID()][n.getID()] = nuevoItem;
+									}
+								} else {
+									matrizDist[n.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+									matrizDist[ady.getVerticeAdy().getID()][n.getID()] = nuevoItem;
+								}
+								// ahora guardo la distancia entre el origen y donde voy a ir
+								itemActual = matrizDist[origen.getID()][ady.getVerticeAdy().getID()];
+								if (itemActual != null) {
+									if (!itemActual.isVerificado()) {
+										if (distActual < itemActual.getDistancia()) {
+											nuevoItem = new ItemMatriz(distActual);
+											matrizDist[origen.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+											matrizDist[ady.getVerticeAdy().getID()][origen.getID()] = nuevoItem;
+
+										}
+
+									}
+								} else {
+									nuevoItem = new ItemMatriz(distActual);
+									matrizDist[origen.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+									matrizDist[ady.getVerticeAdy().getID()][origen.getID()] = nuevoItem;
+								}
+
+								// System.out.println("\n LLAMADO RECURSIVO PORQUE LA ENTRADA NO ES VALIDA\n");
+								lsCamino = newHopeAux(ady.getVerticeAdy(), origen, dest, lsVisitados, distActual,
+										lsCamino, distMin, obligatorios);
+							}
+						} else {
+							// System.out.println("no hay entrada en la matriz");
+
+							// no hay ninguna entrada en la matriz, por lo tanto no puedo ahorrarme el
+							// camino.
+							nuevoItem = new ItemMatriz((int) ady.getEtiqueta());
+
+							// guardo la distancia entre donde estoy parado y el nodo que sigue
+							if (matrizDist[n.getID()][ady.getVerticeAdy().getID()] != null) {
+								if (!matrizDist[n.getID()][ady.getVerticeAdy().getID()].isVerificado()) {
+									matrizDist[n.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+									matrizDist[ady.getVerticeAdy().getID()][n.getID()] = nuevoItem;
+								}
+							} else {
+								matrizDist[n.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+								matrizDist[ady.getVerticeAdy().getID()][n.getID()] = nuevoItem;
+							}
+							// ahora guardo la distancia entre el origen y donde voy a ir
+							nuevoItem = new ItemMatriz(distActual);
+							matrizDist[origen.getID()][ady.getVerticeAdy().getID()] = nuevoItem;
+							matrizDist[ady.getVerticeAdy().getID()][origen.getID()] = nuevoItem;
+							// System.out.println("\n LLAMADO RECURSIVO PORQUE NO HAY ENTRADA EN MATRIZ\n");
+							lsCamino = newHopeAux(ady.getVerticeAdy(), origen, dest, lsVisitados, distActual, lsCamino,
+									distMin, obligatorios);
+
+						}
+
+					}
+				}
+				// Se resta porque voy a ir por otro camino,y este no continen al adyacente
+				// anterior.
+				distActual -= (int) ady.getEtiqueta();
+				ady = ady.getSigAdyacente();
+			}
+		}
+		lsVisitados.eliminar(lsVisitados.longitud());
+
+		return lsCamino;
+	}
+
+	//////////////////////////////////////////////////////
 
 	public void borrarDatos() {
 		this.inicio = null;

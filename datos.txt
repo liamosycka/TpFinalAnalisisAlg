@@ -1,0 +1,36 @@
+C:Glaciar Perito Moreno,Argentina
+C:Ushuaia,Argentina
+C:Jericoacoara,Brasil
+C:Tayrona,Colombia
+C:Cartagena de Indias,Colombia
+C:Maldonado,Uruguay
+C:Machu Pichu,Peru
+C:Salar de Uyuni,Bolivia
+R:Glaciar Perito Moreno,Cartagena de Indias,16926
+R:Ushuaia,Maldonado,2619
+R:Ushuaia,Salar de Uyuni,3804
+R:Ushuaia,Machu Pichu,4609
+R:Ushuaia,Jericoacoara,6528
+R:Ushuaia,Cartagena de Indias,7268
+R:Ushuaia,Tayrona,7353
+R:Ushuaia,Glaciar Perito Moreno,13472
+R:Jericoacoara,Cartagena de Indias,4195
+R:Jericoacoara,Glaciar Perito Moreno,12868
+R:Tayrona,Cartagena de Indias,182
+R:Tayrona,Machu Pichu,2746
+R:Tayrona,Salar de Uyuni,3600
+R:Tayrona,Jericoacoara,4092
+R:Tayrona,Maldonado,5605
+R:Tayrona,Glaciar Perito Moreno,16856
+R:Maldonado,Machu Pichu,3133
+R:Maldonado,Jericoacoara,3936
+R:Maldonado,Cartagena de Indias,5572
+R:Maldonado,Glaciar Perito Moreno,12557
+R:Machu Pichu,Cartagena de Indias,2660
+R:Machu Pichu,Jericoacoara,3771
+R:Machu Pichu,Glaciar Perito Moreno,15324
+R:Salar de Uyuni,Machu Pichu,965
+R:Salar de Uyuni,Maldonado,2170
+R:Salar de Uyuni,Cartagena de Indias,3536
+R:Salar de Uyuni,Jericoacoara,3589
+R:Salar de Uyuni,Glaciar Perito Moreno,14481

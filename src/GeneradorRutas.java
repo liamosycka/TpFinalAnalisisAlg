@@ -371,6 +371,7 @@ public class GeneradorRutas {
 		} else {
 			System.out.println("No existe un camino entre las ciudades");
 		}
+		
 
 		return c;
 	}
@@ -388,9 +389,15 @@ public class GeneradorRutas {
 			obligatorios.add(new Ciudad(s, ""));
 		}
 		if (grafo.existeCamino(ciudadComienzo, ciudadFin)) {
-			c = grafo.caminoMenorDistanciaDinamico(ciudadComienzo, ciudadFin, obligatorios);
+			//c = grafo.caminoMenorDistanciaDinamico(ciudadComienzo, ciudadFin, obligatorios);
+			c = grafo.newHope(ciudadComienzo, ciudadFin, obligatorios);
+			
 			if (!c.esVacio()) {
 				System.out.println("Camino con menos Km: " + c);
+				c=grafo.newHope(new Ciudad("Tayrona",""), ciudadFin, obligatorios);
+				System.out.println("camino 2: "+c);
+				c=grafo.newHope(new Ciudad("Maldonado",""), ciudadFin, obligatorios);
+				System.out.println("camino 3: "+c);
 			} else {
 				System.out.println("No hay un camino que pase por las 4 ciudades.");
 			}
