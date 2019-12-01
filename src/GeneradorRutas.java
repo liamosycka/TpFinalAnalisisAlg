@@ -48,9 +48,12 @@ public class GeneradorRutas {
 						caminosDinamico();
 						break;
 					case 4:
+						caminoDinamicoFloyd();
+						break;
+					case 5:
 						System.out.println(grafo.toString());
-						grafo.debug();
-						// caminoDinamico();
+						
+						
 						break;
 					default:
 						break;
@@ -71,14 +74,14 @@ public class GeneradorRutas {
 		// Se genera una cantidad aleatoria de rutas, de 1 al cantRutas
 		// las rutas generadas son a los destinos mas cercanos
 		// System.out.println("Hasta cuántas conexiones por ciudad?");
-		 //int cantRutas = TecladoIn.readLineInt();
+		// int cantRutas = TecladoIn.readLineInt();
 		int cantRutas;
 
 		File f = new File("datos.txt"); // file to be delete
 		f.delete();
 		precargaCiudades();
 		cantRutas = Math.min(99999, ciudades.size() - 1);
-		//cantRutas=Math.min(cantRutas,ciudades.size()-1);
+		// cantRutas=Math.min(cantRutas,ciudades.size()-1);
 
 		// guardams las ciudades en el archivo
 		ListIterator<Ciudad> itc = ciudades.listIterator();
@@ -170,7 +173,7 @@ public class GeneradorRutas {
 
 	public static int menu2() {
 		int op;
-		String[] opciones = { "Cargar archivo en grafo", "Buscar camino más corto", "Buscar mas corto dinamico",
+		String[] opciones = { "Cargar archivo en grafo", "Buscar camino más corto", "Buscar mas corto dinamico","Buscar camino mas corto con Floyd-Warshall",
 				"Imprimir grafo" };
 
 		System.out.println();
@@ -282,6 +285,7 @@ public class GeneradorRutas {
 		 * false));
 		 */
 		ciudades.add(new Ciudad("Maldonado", "Uruguay", -34.9000, -54.9500, false));
+
 		/*
 		 * ciudades.add(new Ciudad("Montevideo", "Uruguay", -34.9033, -56.1882, false));
 		 * ciudades.add(new Ciudad("Paysandú", "Uruguay", -32.3214, -58.0756, false));
@@ -296,6 +300,7 @@ public class GeneradorRutas {
 		 * 10.2353, -67.5911, false)); ciudades.add(new Ciudad("Valencia", "Venezuela",
 		 * 10.1620, -68.0077, false));
 		 */
+
 		ciudades.add(new Ciudad("Machu Pichu", "Peru", -13.1631, -72.5456, true));
 		ciudades.add(new Ciudad("Salar de Uyuni", "Bolivia", -20.1338, -67.4891, true));
 	}
@@ -389,23 +394,40 @@ public class GeneradorRutas {
 			obligatorios.add(new Ciudad(s, ""));
 		}
 		if (grafo.existeCamino(ciudadComienzo, ciudadFin)) {
-			//c = grafo.caminoMenorDistanciaDinamico(ciudadComienzo, ciudadFin, obligatorios);
-			c = grafo.newHope(ciudadComienzo, ciudadFin, obligatorios);
-			
+
+			c = grafo.menorDistanciaDinamico(ciudadComienzo, ciudadFin, obligatorios);
+
 			if (!c.esVacio()) {
 				System.out.println("Camino con menos Km: " + c);
-				c=grafo.newHope(new Ciudad("Tayrona",""), ciudadFin, obligatorios);
-				System.out.println("camino 2: "+c);
-				c=grafo.newHope(new Ciudad("Maldonado",""), ciudadFin, obligatorios);
-				System.out.println("camino 3: "+c);
+				c = grafo.menorDistanciaDinamico(new Ciudad("Tayrona", ""), ciudadFin, obligatorios);
+				System.out.println("camino 2: " + c);
+				c = grafo.menorDistanciaDinamico(new Ciudad("Maldonado", ""), ciudadFin, obligatorios);
+				System.out.println("camino 3: " + c);
 			} else {
 				System.out.println("No hay un camino que pase por las 4 ciudades.");
 			}
 		} else {
 			System.out.println("No existe un camino entre las ciudades");
 		}
-		
+
 		return c;
+	}
+	public static void caminoDinamicoFloyd() {
+		Ciudad ciudadComienzo,ciudadFin;
+		Camino c=null;
+		ciudadFin = new Ciudad("Cartagena de Indias", "");
+		ciudadComienzo = new Ciudad("Ushuaia", "");
+		if (grafo.existeCamino(ciudadComienzo, ciudadFin)) {
+			Lista ls=new Lista();
+			ls.insertar(ciudadComienzo, 1);
+			ls.insertar(ciudadFin, 2);
+			c=grafo.floyd(ciudadComienzo,ciudadFin);
+			c.setListaDeNodos(ls);
+			System.out.println(c.toString());
+		}
+		
+		
+		
 	}
 
 }
